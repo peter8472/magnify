@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Magnify</string>
+    <string name="zoomPref">zoomValue</string>
     <string name="action_settings">Settings</string>
 </resources>

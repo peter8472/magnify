@@ -1,8 +1,6 @@
 package info.p445m.magnify;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,22 +12,17 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 public class MainActivity extends AppCompatActivity {
 
         private Camera mCamera;
         private CameraPreview mPreview;
-        private int zoomLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         //setContentView(R.layout.activity_main);
-        int z = sharedPref.getInt(getString(R.string.zoomPref),0);
         setContentView(R.layout.camera_preview);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
         Button zoomOut = (Button) findViewById(R.id.zoom_out);
         zoomIn.setOnClickListener(zoomInListener);
         zoomOut.setOnClickListener(zoomOutListener);
-
-
 
 
 
@@ -84,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    private boolean safeCameraOpen(int id) {
+    private booleansafeCameraOpen(int id) {
         boolean qOpened = false;
 
         try {
@@ -110,23 +101,16 @@ public class MainActivity extends AppCompatActivity {
     public void zoom(int amount) {
         // amount: the amount to zoom, negative for zoom out
         Camera.Parameters cParam = mCamera.getParameters();
-        int maxZoom = cParam.getMaxZoom();
-
         int myZoom = cParam.getZoom();
         myZoom = myZoom + amount;
-        if (myZoom < 0)
-            myZoom = 0;
-        if (myZoom > maxZoom)
-            myZoom = maxZoom;
-
         cParam.setZoom(myZoom);
         mCamera.setParameters(cParam);
     }
     public void closer(View view) {
-        zoom(10);
+        zoom(1);
     }
     public void farther(View view) {
-        zoom(-10);
+        zoom(-1);
     }
     private View.OnClickListener zoomInListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -141,16 +125,4 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor  editor = sharedPref.edit();
-        Camera.Parameters param = mCamera.getParameters();
-
-        editor.putInt(getString(R.string.zoomPref), param.getZoom());
-        editor.commit();
-    }
 }
