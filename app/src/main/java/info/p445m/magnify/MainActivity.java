@@ -22,14 +22,18 @@ public class MainActivity extends AppCompatActivity {
         private Camera mCamera;
         private CameraPreview mPreview;
         private int zoomLevel;
+        private int oldZoom;
+        private String oldFocus;
+        private String oldFlash;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+
         //setContentView(R.layout.activity_main);
-        int z = sharedPref.getInt(getString(R.string.zoomPref),0);
+
         setContentView(R.layout.camera_preview);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,6 +55,36 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    /**
+     * Dispatch onResume() to fragments.  Note that for better inter-operation
+     * with older versions of the platform, at the point of this call the
+     * fragments attached to the activity are <em>not</em> resumed.  This means
+     * that in some cases the previous state may still be saved, not allowing
+     * fragment transactions that modify the state.  To correctly interact
+     * with fragments in their proper state, you should instead override
+     * {@link #onResumeFragments()}.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mCamera==null)
+            mCamera = getCameraInstance();
+
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        zoomLevel = sharedPref.getInt(getString(R.string.zoomPref),0);
+        Camera.Parameters cParam = mCamera.getParameters();
+        oldFlash = cParam.getFlashMode();
+        oldZoom = cParam.getZoom();
+        oldFocus = cParam.getFocusMode();
+        cParam.setZoom(zoomLevel);
+        mCamera.setParameters(cParam);
+        cParam.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        cParam.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+        mCamera.setParameters(cParam);
+
+    }
+
     /** A safe way to get an instance of the Camera object. */
     public static Camera getCameraInstance(){
         Camera c = null;
@@ -102,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     private void releaseCameraAndPreview() {
         //preview.setCamera(null);
         // huh?
+
         if (mCamera!= null) {
             mCamera.release();
             mCamera = null;
@@ -149,8 +184,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor  editor = sharedPref.edit();
         Camera.Parameters param = mCamera.getParameters();
-
         editor.putInt(getString(R.string.zoomPref), param.getZoom());
         editor.commit();
+        param.setZoom(oldZoom);
+        param.setFocusMode(oldFocus);
+        param.setFlashMode(oldFlash);
+        mCamera.setParameters(param);
+        releaseCameraAndPreview();
     }
 }
