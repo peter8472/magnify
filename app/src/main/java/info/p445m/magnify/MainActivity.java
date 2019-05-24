@@ -39,12 +39,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // Create an instance of Camera
-        mCamera = getCameraInstance();
+        //mCamera = getCameraInstance();
 
         // Create our Preview view and set it as the content of our activity.
-        mPreview = new CameraPreview(this, mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
+
         Button zoomIn = (Button) findViewById(R.id.zoom_in);
         Button zoomOut = (Button) findViewById(R.id.zoom_out);
         zoomIn.setOnClickListener(zoomInListener);
@@ -68,8 +66,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mCamera==null)
+//        if (mCamera==null)
             mCamera = getCameraInstance();
+
+        mPreview = new CameraPreview(this, mCamera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         zoomLevel = sharedPref.getInt(getString(R.string.zoomPref),0);
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mCamera!= null) {
             mCamera.release();
-            mCamera = null;
+//            mCamera = null;
         }
     }
     public void zoom(int amount) {
